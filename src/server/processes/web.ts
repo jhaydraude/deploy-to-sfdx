@@ -5,7 +5,9 @@ import ua from 'universal-analytics';
 import path from 'path';
 import jsforce from 'jsforce';
 
-import { putDeployRequest, getKeys, cdsDelete, cdsRetrieve, cdsPublish, putLead } from '../lib/redisNormal';
+import cors from 'cors';
+
+import { putDeployRequest, getKeys, cdsDelete, cdsRetrieve, cdsPublish, putLead, getAllPooledOrgIDs } from '../lib/redisNormal';
 import { deployMsgBuilder } from '../lib/deployMsgBuilder';
 import { utilities } from '../lib/utilities';
 import { getPoolKey } from '../lib/namedUtilities';
@@ -28,9 +30,10 @@ app.listen(port, () => {
 app.use(express.static('dist'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
 function wrapAsync(fn: any) {
-    return function(req, res, next) {
+    return function (req, res, next) {
         // Make sure to `.catch()` any errors and pass them along to the `next()`
         // middleware in the chain, in this case the error handler.
         fn(req, res, next).catch(next);
@@ -107,6 +110,14 @@ app.get(
     wrapAsync(async (req, res, next) => {
         const keys = await getKeys();
         res.send(keys);
+    })
+);
+
+app.get(
+    '/pools/:poolname',
+    wrapAsync(async (req, res, next) => {
+        const orgIDs = await getAllPooledOrgIDs(req.params.poolname);
+        res.send(orgIDs);
     })
 );
 
