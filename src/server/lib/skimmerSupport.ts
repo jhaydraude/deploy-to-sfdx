@@ -8,13 +8,14 @@ import {
     orgDeleteExchange,
     getHerokuCDSs,
     getAppNamesFromHerokuCDSs,
-    getKeysForCDSs,
+    // getKeysForCDSs,
     cdsRetrieve,
     cdsDelete,
     getDeleteRequest,
     getAllPooledOrgs
 } from './redisNormal';
 import { PoolConfig } from './types';
+import { CDS } from './CDS';
 import { herokuDelete } from './herokuDelete';
 import { exec2JSON } from './execProm';
 import { getPoolName, getPoolConfig } from './namedUtilities';
@@ -29,7 +30,9 @@ const checkExpiration = async (pool: PoolConfig): Promise<string> => {
         return `pool ${poolname} is empty`;
     }
     const goodOrgs = allOrgs
-        .filter((org) => moment().diff(moment(org.completeTimestamp), 'hours', true) <= pool.lifeHours)
+        .filter(
+            (org) => moment().diff(moment(org.completeTimestamp), 'hours', true) <= pool.lifeHours
+        )
         .map((org) => JSON.stringify(org));
 
     if (goodOrgs.length === allOrgs.length) {
@@ -45,7 +48,12 @@ const checkExpiration = async (pool: PoolConfig): Promise<string> => {
     }
 
     const expiredOrgs = allOrgs
-        .filter((org) => moment().diff(moment(org.completeTimestamp), 'hours', true) > pool.lifeHours && org.mainUser && org.mainUser.username)
+        .filter(
+            (org) =>
+                moment().diff(moment(org.completeTimestamp), 'hours', true) > pool.lifeHours &&
+                org.mainUser &&
+                org.mainUser.username
+        )
         .map((org) => JSON.stringify({ username: org.mainUser.username, delete: true }));
 
     if (expiredOrgs.length > 0) {
@@ -99,21 +107,49 @@ const herokuExpirationCheck = async (): Promise<void> => {
     }
 };
 
-const removeOldDeployIds = async (): Promise<void> => {
-    const deployIds = await getKeysForCDSs();
-    const CDSs = (await Promise.all(deployIds.map((deployId) => cdsRetrieve(deployId)))).filter((cds) => cds.mainUser && cds.mainUser.username);
-    await Promise.all(
-        CDSs.map((cds) => {
-            if (!cds.expirationDate && moment().diff(moment(cds.browserStartTime), 'hours') > hoursToKeepBYOO) {
-                return cdsDelete(cds.deployId);
-            }
-            if (cds.expirationDate && moment().isAfter(moment(cds.expirationDate).endOf('day'))) {
-                return cdsDelete(cds.deployId);
-            }
-            return undefined;
-        }).filter((item) => item)
-    );
-};
+const removeOldDeployIds = async (): Promise<void> =>
+    new Promise((resolve) => {
+        // const deployIds = await getKeysForCDSs();
+        const stream = redis.scanStream({
+            match: '*-*-*'
+        });
+        stream.on('end', () => {
+            logger.debug('end of redis-stream');
+            resolve();
+        });
+        stream.on('data', async (keyResults: string[]) => {
+            // logger.debug(`data with length ${keyResults.length}`, keyResults);
+            // Pause the stream from scanning more keys until we've migrated the current keys.
+            stream.pause();
+            const CDSs = ((await Promise.all(
+                keyResults
+                    .filter((id) => !id.includes('.'))
+                    .map((deployId) => cdsRetrieve(deployId))
+            )) as CDS[]).filter((cds) => cds.mainUser && cds.mainUser.username);
+            logger.debug(`CDSs with length ${CDSs.length}`);
+            await Promise.all(
+                CDSs.map((cds) => {
+                    logger.debug(`has expiration ${cds.expirationDate}`);
+                    if (
+                        !cds.expirationDate &&
+                        moment().diff(moment(cds.browserStartTime), 'hours') > hoursToKeepBYOO
+                    ) {
+                        return cdsDelete(cds.deployId);
+                        // logger.debug('would delete');
+                    }
+                    if (
+                        cds.expirationDate &&
+                        moment().isAfter(moment(cds.expirationDate).endOf('day'))
+                    ) {
+                        return cdsDelete(cds.deployId);
+                        // logger.debug('would delete');
+                    }
+                    return undefined;
+                }).filter((item) => item)
+            );
+            stream.resume();
+        });
+    });
 
 const processDeleteQueue = async (): Promise<void> => {
     const delQueueInitialSize = await getDeleteQueueSize();

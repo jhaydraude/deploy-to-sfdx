@@ -41,9 +41,9 @@ function wrapAsync(fn: any) {
 }
 
 const commonDeploy = async (req, url: string) => {
-    const message: DeployRequest = deployMsgBuilder(req);
+    const message: DeployRequest = await deployMsgBuilder(req);
 
-    if (message.visitor) {
+    if (message.visitor && !message.noPool) {
         message.visitor.pageview(url).send();
         message.visitor.event('Repo', getPoolKey(message, '-')).send();
     }
@@ -66,7 +66,7 @@ app.post(
     wrapAsync(async (req, res, next) => {
         const [message] = await Promise.all([commonDeploy(req, '/trial'), putLead(req.body)]);
         logger.debug('trial request', message);
-        res.redirect(`/deploying/trial/${message.deployId.trim()}`);
+        res.redirect(`/#deploying/trial/${message.deployId.trim()}`);
     })
 );
 
@@ -74,7 +74,7 @@ app.post(
     '/delete',
     wrapAsync(async (req, res, next) => {
         await cdsDelete(req.body.deployId);
-        res.send({ redirectTo: '/deleteConfirm' });
+        res.send({ redirectTo: '/#deleteConfirm' });
     })
 );
 
@@ -83,11 +83,11 @@ app.get(
     wrapAsync(async (req, res, next) => {
         // allow repos to require the email parameter
         if (req.query.email === 'required') {
-            return res.redirect(multiTemplateURLBuilder(req.query.template, '/userinfo'));
+            return res.redirect(multiTemplateURLBuilder(req.query.template, '/#userinfo'));
         }
 
         const message = await commonDeploy(req, '/launch');
-        return res.redirect(`/deploying/deployer/${message.deployId.trim()}`);
+        return res.redirect(`/#deploying/deployer/${message.deployId.trim()}`);
     })
 );
 
@@ -129,7 +129,7 @@ app.get(
     })
 );
 
-app.get('/favicons/favicon.ico', (req, res, next) => {
+app.get(['/favicons/favicon.ico', '/favicon.ico'], (req, res, next) => {
     res.sendFile('favicon.ico', { root: path.join(__dirname, '../../../dist/resources/favicons') });
 });
 
@@ -185,7 +185,7 @@ app.get(
             },
             'byoo'
         );
-        return res.redirect(`/deploying/deployer/${message.deployId.trim()}`);
+        return res.redirect(`/#deploying/deployer/${message.deployId.trim()}`);
     })
 );
 
@@ -203,7 +203,7 @@ app.use((error, req, res, next) => {
     }
     logger.error(`request failed: ${req.url}`);
     logger.error(error);
-    return res.redirect(`/error?msg=${error}`);
+    return res.redirect(`/#error?msg=${error}`);
 });
 
 // process.on('unhandledRejection', e => {

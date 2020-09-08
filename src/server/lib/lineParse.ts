@@ -30,17 +30,21 @@ const byooFilter = (line: string): boolean => {
 
 const securityAssertions = (line: string): string => {
     if (!shellSanitize(line)) {
-        throw new Error(`ERROR: Commands with metacharacters cannot be executed.  Put each command on a separate line.  Your command: ${line}`);
+        throw new Error(
+            `ERROR: Commands with metacharacters cannot be executed.  Put each command on a separate line.  Your command: ${line}`
+        );
     }
     if (!line.startsWith('sfdx ')) {
-        throw new Error(`ERROR: Commands must start with sfdx or be comments (security, yo!).  Your command: ${line}`);
+        throw new Error(
+            `ERROR: Commands must start with sfdx or be comments (security, yo!).  Your command: ${line}`
+        );
     }
     if (line.includes(' -u ')) {
         throw new Error(
             `ERROR: Commands can't contain -u...you can only execute commands against the default project the deployer creates--this is a multitenant sfdx deployer.  Your command: ${line}`
         );
     }
-    if (line.includes(' --taretusername ')) {
+    if (line.includes(' --targetusername ')) {
         throw new Error(
             `ERROR: Commands can't contain -u...you can only execute commands against the default project the deployer creates--this is a multitenant sfdx deployer.  Your command: ${line}`
         );
@@ -73,10 +77,15 @@ const lineCorrections = (line: string, msgJSON: DeployRequest): string => {
         // if the script didn't supply the concise line, make sure it's there.
         return `${argStripper(line, '--concise', true)} --concise`;
     }
-    if (line.includes('sfdx force:source:push') && isByoo(msgJSON) && isMultiRepo(msgJSON)) {
+    if (isByoo(msgJSON) && line.includes('sfdx force:source:push')) {
         const project = fs.readJSONSync(`tmp/${msgJSON.deployId}/sfdx-project.json`);
-        return line.replace('sfdx force:source:push', `sfdx force:source:deploy -p ${getPackageDirsFromFile(project)}`);
+        // byoo might not be a scratch org, so we'll deploy it using deploy instead of push, referencing the project directories
+        return line.replace(
+            'sfdx force:source:push',
+            `sfdx force:source:deploy -p ${getPackageDirsFromFile(project)}`
+        );
     }
+
     return line;
 };
 
@@ -101,18 +110,25 @@ const getMaxDays = (lines: string[]): number =>
     Math.max(
         ...lines
             .filter((line) => line.includes('org:create'))
-            .map((line) => parseInt(getArg(line, '-d'), 10) || parseInt(getArg(line, '--days'), 10) || 7)
+            .map(
+                (line) =>
+                    parseInt(getArg(line, '-d'), 10) || parseInt(getArg(line, '--days'), 10) || 7
+            )
     );
 
 const lineParse = async (msgJSON: DeployRequest): Promise<string[]> => {
     let parsedLines = (
         await filesToLines(
             msgJSON.repos.map((repo) =>
-                isMultiRepo(msgJSON) ? `tmp/${msgJSON.deployId}/${repo.repo}/orgInit.sh` : `tmp/${msgJSON.deployId}/orgInit.sh`
+                isMultiRepo(msgJSON)
+                    ? `tmp/${msgJSON.deployId}/${repo.repo}/orgInit.sh`
+                    : `tmp/${msgJSON.deployId}/orgInit.sh`
             )
         )
     )
-        .map((line) => (msgJSON.repos.every((repo) => repo.whitelisted) ? line : securityAssertions(line)))
+        .map((line) =>
+            msgJSON.repos.every((repo) => repo.whitelisted) ? line : securityAssertions(line)
+        )
         .filter((line) => !isByoo(msgJSON) || byooFilter(line))
         .map((line) => lineCorrections(line, msgJSON))
         .map((line) => jsonify(line));
@@ -128,7 +144,9 @@ const lineParse = async (msgJSON: DeployRequest): Promise<string[]> => {
     if (!isByoo(msgJSON) && isMultiRepo(msgJSON)) {
         // remove all the creates and put it at the beginning
         parsedLines = [
-            `sfdx force:org:create -f config/project-scratch-def.json -d ${getMaxDays(parsedLines)} -s --json`,
+            `sfdx force:org:create -f config/project-scratch-def.json -d ${getMaxDays(
+                parsedLines
+            )} -s --json`,
             ...parsedLines.filter((line) => !line.includes('org:create'))
         ];
     }
