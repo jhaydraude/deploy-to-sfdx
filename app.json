@@ -51,6 +51,9 @@
         },
         {
             "url": "https://github.com/heroku/heroku-buildpack-cli#ff0bfe609b4618be16b5e446d623d0eabc1576cb"
+        },
+        {
+            "url": "https://github.com/mshanemc/github-via-pat"
         }
     ],
     "addons": [
