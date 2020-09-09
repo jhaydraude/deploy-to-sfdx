@@ -1,3 +1,18 @@
 <template>
+  <div class="slds-m-vertical_large">
+   Command: {result.scanParameters}
+  </div>
+
+  <template if:true={result.scanResult.MonitoredItems}>
+    <!-- Monitored Inventory-->
+    <lightning-card  title="Monitored Inventory">
+      <lightning-datatable
+      data={result.scanResult.MonitoredItems}
+      columns={monitoredInvColumns}
+      key-field="label">
+</lightning-datatable>
+</lightning-card>
+    
+  </template>
   <span>{result.scanResult}</span>
 </template>

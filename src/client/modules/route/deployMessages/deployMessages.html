@@ -104,7 +104,7 @@
   <template if:true={showMetadataScan}>
     <div class="section slds-m-vertical_large">
       <base-card>
-        <div>Metadata Scan Results:</div>
+        <div>ISVTE Plugin Metadata Scan Results:</div>
         <template for:each={results.mdscanResults} for:item="mdscanResult" for:index="index">
           <messages-metadata-scan-output result={mdscanResult} key={mdscanResult.scanTime}></messages-metadata-scan-output>
         </template>
