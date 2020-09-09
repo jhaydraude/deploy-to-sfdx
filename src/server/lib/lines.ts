@@ -109,6 +109,8 @@ const lineRunner = async (msgJSON: DeployRequest, output: CDS): Promise<CDS> => 
                             username: response.result.fields.username
                         });
                         commandResult.shortForm = `created user with username ${response.result.fields.username}`;
+                    } else if (summary === commandSummary.MDSCAN) {
+                        output.mdscanResults.push(response.result);
                     }
                 }
 

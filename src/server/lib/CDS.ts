@@ -24,6 +24,7 @@ class CDS {
     errors: ClientError[];
     commandResults: ClientResult[];
     herokuResults: HerokuResult[];
+    mdscanResults: MdScanResult[];
     currentCommand: string;
 
     poolLines?: LineParserResult;
@@ -52,6 +53,7 @@ class CDS {
         this.errors = options.errors || [];
         this.commandResults = options.commandResults || [];
         this.herokuResults = options.herokuResults || [];
+        this.mdscanResults = options.mdScanResults || [];
         this.currentCommand = options.currentCommand;
 
         this.poolLines = options.poolLines;
@@ -64,6 +66,11 @@ export interface HerokuResult {
     appName: string;
     dashboardUrl: string;
     openUrl: string;
+}
+
+export interface MdScanResult {
+    status: number;
+    result: {};
 }
 
 export interface CDSOptions {
@@ -89,6 +96,7 @@ export interface CDSOptions {
     errors?: ClientError[];
     commandResults?: ClientResult[];
     herokuResults?: HerokuResult[];
+    mdScanResults?: MdScanResult[];
     currentCommand?: string;
 
     poolLines?: LineParserResult;
@@ -137,7 +145,8 @@ export enum commandSummary {
     DATA = 'loading some data',
     USER_CREATE = 'creating a user',
     PACKAGE = 'installing a package',
-    DEPLOY = 'deploying via metadata api'
+    DEPLOY = 'deploying via metadata api',
+    MDSCAN = 'performing metadata scan'
 }
 
 export { CDS };

@@ -37,6 +37,8 @@ export const getSummary = (localLine: string, msgJSON: DeployRequest): commandSu
             });
         }
         return commandSummary.HEROKU_DEPLOY;
+    } else if (localLine.includes('isvte:mdscan')) {
+        return commandSummary.TEPLUGIN;
     } else {
         logger.info('unhandled command will show up directly in the UI', {
             command: localLine,

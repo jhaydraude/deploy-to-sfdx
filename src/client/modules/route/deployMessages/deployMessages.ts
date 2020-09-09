@@ -61,6 +61,13 @@ export default class DeployMessages extends LightningElement {
     return this.results && !this.results.isByoo;
   }
 
+  get showISVTE() {
+    return this.tePluginResults.length > 0;
+  }
+
+  get tePluginResults() {
+
+  }
   @wire(resultsPoll, { deployId: '$deployId' })
   wiredResults({ error, data }: { error: any; data: CDS }) {
     if (error) {
