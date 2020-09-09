@@ -7,7 +7,7 @@ import { getArg, isByoo } from './namedUtilities';
 import { lineParse } from './lineParse';
 import { cdsPublish, deleteOrg } from './redisNormal';
 import { exec, exec2JSON, exec2String } from './execProm';
-import { CDS, commandSummary, HerokuResult, ClientResult, ClientError } from './CDS';
+import { CDS, commandSummary, HerokuResult, ClientResult, ClientError, MdScanResult } from './CDS';
 import { loginURL } from './loginURL';
 import { getSummary } from './getSummary';
 
@@ -110,7 +110,12 @@ const lineRunner = async (msgJSON: DeployRequest, output: CDS): Promise<CDS> => 
                         });
                         commandResult.shortForm = `created user with username ${response.result.fields.username}`;
                     } else if (summary === commandSummary.MDSCAN) {
-                        output.mdscanResults.push(response.result);
+                        const MDR: MdScanResult = {
+                            scanResult: response.result,
+                            scanParameters: localLine,
+                            scanTime: new Date()
+                        };
+                        output.mdscanResults.push(MDR);
                     }
                 }
 

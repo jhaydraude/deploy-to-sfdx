@@ -61,6 +61,9 @@ export default class DeployMessages extends LightningElement {
     return this.results && !this.results.isByoo;
   }
 
+  get showMetadataScan() {
+    return this.results && this.results.mdscanResults && this.results.mdscanResults.length > 0;
+  }
 
   @wire(resultsPoll, { deployId: '$deployId' })
   wiredResults({ error, data }: { error: any; data: CDS }) {

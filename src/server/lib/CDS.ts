@@ -69,8 +69,9 @@ export interface HerokuResult {
 }
 
 export interface MdScanResult {
-    status: number;
-    result: {};
+    scanResult: {};
+    scanParameters: string;
+    scanTime: Date;
 }
 
 export interface CDSOptions {
