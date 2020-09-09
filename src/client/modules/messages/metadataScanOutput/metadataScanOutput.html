@@ -28,10 +28,10 @@
                 <template for:each={result.scanResult.MonitoredItems} for:item="currentItem" for:index="index">
                   <tr key={currentItem.label}>
                     <th scope="row" data-label="Metadata Type">
-                      <div class="slds-truncate" title="{currentItem.label}">{currentItem.label}</div>
+                      <div class="slds-truncate" title={currentItem.label}>{currentItem.label}</div>
                     </th>
                     <td data-label="Count">
-                      <div class="slds-truncate" title="{currentItem.count}">{currentItem.count}</div>
+                      <div class="slds-truncate" title={currentItem.count}>{currentItem.count}</div>
                     </td>
                   </tr>
                   
