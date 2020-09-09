@@ -5,13 +5,47 @@
 
   <template if:true={result.scanResult.MonitoredItems}>
     <!-- Monitored Inventory-->
-    <lightning-card  title="Monitored Inventory">
-      <lightning-datatable
-      data={result.scanResult.MonitoredItems}
-      columns={monitoredInvColumns}
-      key-field="label">
-</lightning-datatable>
-</lightning-card>
+    <base-card title="Metadata Inventory">
+    
+
+
+    <div class="slds">
+      <div class="slds-table--header-fixed_container" style="height:450px;">
+        <div class="slds-scrollable_y" style="height:100%;">
+            <table class="slds-table slds-table_bordered slds-table--header-fixed">
+              <thead>
+                <tr class="slds-text-title_caps">
+                  <th scope="col">
+                    <div class="slds-truncate slds-cell-fixed" title="Metadata Type">Metadata Type</div>
+                  </th>
+                  <th scope="col">
+                    <div class="slds-truncate slds-cell-fixed" title="Count">Count</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                
+                <template for:each={result.scanResult.MonitoredItems} for:item="currentItem" for:index="index">
+                  <tr key={currentItem.label}>
+                    <th scope="row" data-label="Metadata Type">
+                      <div class="slds-truncate" title="{currentItem.label}">{currentItem.label}</div>
+                    </th>
+                    <td data-label="Count">
+                      <div class="slds-truncate" title="{currentItem.count}">{currentItem.count}</div>
+                    </td>
+                  </tr>
+                  
+                </template>
+
+          
+          
+        </div>
+      </div>
+    </div>
+
+
+    </base-card>
+
     
   </template>
   <span>{result.scanResult}</span>
