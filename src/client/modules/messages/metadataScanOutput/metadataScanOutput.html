@@ -5,9 +5,9 @@
 
   <template if:true={result.scanResult.MonitoredItems}>
     <!-- Monitored Inventory-->
-    <base-card title="Metadata Inventory">
+    <base-card >
     
-
+    <span>Select Metadata Inventory</span>
 
     <div class="slds">
       <div class="slds-table--header-fixed_container" style="height:450px;">
@@ -27,9 +27,9 @@
                 
                 <template for:each={result.scanResult.MonitoredItems} for:item="currentItem" for:index="index">
                   <tr key={currentItem.label}>
-                    <th scope="row" data-label="Metadata Type">
+                    <td data-label="Metadata Type">
                       <div class="slds-truncate" title={currentItem.label}>{currentItem.label}</div>
-                    </th>
+                    </td>
                     <td data-label="Count">
                       <div class="slds-truncate" title={currentItem.count}>{currentItem.count}</div>
                     </td>
