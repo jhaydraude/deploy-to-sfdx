@@ -104,7 +104,7 @@
         </template>
       </base-card>
     </template>
-    <template if:true={result.scanResult.Alerts}>
+    <template if:true={result.scanResult.InstallationWarnings}>
       <!-- Installation Warnings -->
       <base-card>
         <span>Installation Warnings</span>
@@ -122,6 +122,17 @@
         </template>
       </base-card>
     </template>
-    
-  <span>{result.scanResult.Recommendations}</span>
+    <template if:true={result.scanResult.Dependencies}>
+      <base-card>
+        <span>Dependencies</span>
+        <template for:each={result.scanResult.Dependencies} for:item="currentItem" for:index="index">
+          <span>{currentItem.label</span><br>
+            <template if:true={currentItem.items}>
+              <template for:each={currentItem.items} for:item="current" for:index="i">
+                <span class="preserve-format">    {current}</span><br />
+              </template>
+            </template>
+        </template>
+    </base-card>
+    </template>
 </template>
