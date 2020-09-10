@@ -2,9 +2,9 @@
   <div class="slds-m-vertical_large">
     Command: {result.scanParameters}
   </div>
-  <c-accordion allow-multiple-sections-open>
     <template if:true={result.scanResult.MonitoredItems}>
-      <c-accordion-section name="Inventory" label="Inventory of Monitored Metadata">
+      <base-card>
+        <span>Inventory of Monitored Metadata</span>
         <div class="slds">
           <div class="slds-table--header-fixed_container" style="height:450px;">
             <div class="slds-scrollable_y" style="height:100%;">
@@ -35,12 +35,13 @@
             </div>
           </div>
         </div>
-      </c-accordion-section>
+      </base-card>
     </template>
 
     <template if:true={result.scanResult.Recommendations}>
       <!-- Enablement Content-->
-      <c-accordion-section name="Recommendations" label="Best Practices and Feature Recommendations">
+      <base-card>
+        <span>Best Practices and Feature Recommendations</span>
         <template for:each={result.scanResult.Recommendations} for:item="currentItem" for:index="index">
           <base-card key={currentItem.label}>
             <span>{currentItem.label}</span><br />
@@ -57,8 +58,8 @@
             </template>
           </base-card>
         </template>
-      </c-accordion-section>
+      </base-card>
     </template>
-  </c-accordion>
+  
   <span>{result.scanResult.Recommendations}</span>
 </template>
