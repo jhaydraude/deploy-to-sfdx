@@ -60,6 +60,68 @@
         </template>
       </base-card>
     </template>
-  
+    <template if:true={result.scanResult.CodeQualityNotes}>
+      <!-- Quality Rules-->
+      <base-card>
+        <span>Quality Rules</span>
+        <template for:each={result.scanResult.CodeQualityNotes} for:item="currentItem" for:index="index">
+          <base-card key={currentItem.label}>
+            <span>{currentItem.label}</span><br />
+            <span>{currentItem.message}</span><br />
+            <template if:true={currentItem.url}>
+              <span><a href={currentItem.url} target="_blank">Link</a><br /></span>
+            </template>
+            <template if:true={currentItem.exceptions}>
+              <template for:each={currentItem.exceptions} for:item="currentException" for:index="e">
+                <span key={currentException}>
+                  {currentException},
+                </span>
+              </template>
+            </template>
+          </base-card>
+        </template>
+      </base-card>
+    </template>
+    <template if:true={result.scanResult.Alerts}>
+      <!-- Partner Alerts -->
+      <base-card>
+        <span>Partner Alerts</span>
+        <template for:each={result.scanResult.Alerts} for:item="currentItem" for:index="index">
+          <base-card key={currentItem.label}>
+            <span>{currentItem.label}</span><br />
+            <span>{currentItem.message}</span><br />
+            <template if:true={currentItem.url}>
+              <span><a href={currentItem.url} target="_blank">Link</a><br /></span>
+            </template>
+            <template if:true={currentItem.exceptions}>
+              <template for:each={currentItem.exceptions} for:item="currentException" for:index="e">
+                <span key={currentException}>
+                  {currentException},
+                </span>
+              </template>
+            </template>
+          </base-card>
+        </template>
+      </base-card>
+    </template>
+    <template if:true={result.scanResult.Alerts}>
+      <!-- Installation Warnings -->
+      <base-card>
+        <span>Installation Warnings</span>
+        <template for:each={result.scanResult.InstallationWarnings} for:item="currentItem" for:index="index">
+          <base-card key={currentItem.edition}>
+            <span>Cannot be installed in {currentItem.edition}</span><br />
+            <span>Reason: </span><br />
+            <template for:each={currentItem.blockingItems} for:item="currentException" for:index="e">
+                <span key={currentException.label}>
+                  {currentException.label}<br>
+                </span>
+            </template>
+            
+          </base-card>
+        </template>
+      </base-card>
+    </template>
+    
   <span>{result.scanResult.Recommendations}</span>
 </template>
