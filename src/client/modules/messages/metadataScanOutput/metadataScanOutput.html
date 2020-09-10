@@ -1,51 +1,64 @@
 <template>
   <div class="slds-m-vertical_large">
-   Command: {result.scanParameters}
+    Command: {result.scanParameters}
   </div>
-
-  <template if:true={result.scanResult.MonitoredItems}>
-    <!-- Monitored Inventory-->
-    <base-card >
-    
-    <span>Select Metadata Inventory</span>
-
-    <div class="slds">
-      <div class="slds-table--header-fixed_container" style="height:450px;">
-        <div class="slds-scrollable_y" style="height:100%;">
-            <table class="slds-table slds-table_bordered slds-table--header-fixed">
-              <thead>
-                <tr class="slds-text-title_caps">
-                  <th scope="col">
-                    <div class="slds-truncate slds-cell-fixed" title="Metadata Type">Metadata Type</div>
-                  </th>
-                  <th scope="col">
-                    <div class="slds-truncate slds-cell-fixed" title="Count">Count</div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                
-                <template for:each={result.scanResult.MonitoredItems} for:item="currentItem" for:index="index">
-                  <tr key={currentItem.label}>
-                    <td data-label="Metadata Type">
-                      <div class="slds-truncate" title={currentItem.label}>{currentItem.label}</div>
-                    </td>
-                    <td data-label="Count">
-                      <div class="slds-truncate" title={currentItem.count}>{currentItem.count}</div>
-                    </td>
+  <c-accordion allow-multiple-sections-open>
+    <template if:true={result.scanResult.MonitoredItems}>
+      <c-accordion-section name="Inventory" label="Inventory of Monitored Metadata">
+        <div class="slds">
+          <div class="slds-table--header-fixed_container" style="height:450px;">
+            <div class="slds-scrollable_y" style="height:100%;">
+              <table class="slds-table slds-table_bordered slds-table--header-fixed">
+                <thead>
+                  <tr class="slds-text-title_caps">
+                    <th scope="col">
+                      <div class="slds-truncate slds-cell-fixed" title="Metadata Type">Metadata Type</div>
+                    </th>
+                    <th scope="col">
+                      <div class="slds-truncate slds-cell-fixed" title="Count">Count</div>
+                    </th>
                   </tr>
-                  
-                </template>
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  <template for:each={result.scanResult.MonitoredItems} for:item="currentItem" for:index="index">
+                    <tr key={currentItem.label}>
+                      <td data-label="Metadata Type">
+                        <div class="slds-truncate preserve-format" title={currentItem.label}>{currentItem.label}</div>
+                      </td>
+                      <td data-label="Count">
+                        <div class="slds-truncate" title={currentItem.count}>{currentItem.count}</div>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </c-accordion-section>
+    </template>
 
-
-    </base-card>
-
-    
-  </template>
-  <span>{result.scanResult}</span>
+    <template if:true={result.scanResult.Recommendations}>
+      <!-- Enablement Content-->
+      <c-accordion-section name="Recommendations" label="Best Practices and Feature Recommendations">
+        <template for:each={result.scanResult.Recommendations} for:item="currentItem" for:index="index">
+          <base-card key={currentItem.label}>
+            <span>{currentItem.label}</span><br />
+            <span>{currentItem.message}</span><br />
+            <template if:true={currentItem.url}>
+              <span><a href={currentItem.url} target="_blank">Link</a><br /></span>
+            </template>
+            <template if:true={currentItem.exceptions}>
+              <template for:each={currentItem.exceptions} for:item="currentException" for:index="e">
+                <span key={currentException}>
+                  {currentException},
+                </span>
+              </template>
+            </template>
+          </base-card>
+        </template>
+      </c-accordion-section>
+    </template>
+  </c-accordion>
+  <span>{result.scanResult.Recommendations}</span>
 </template>
