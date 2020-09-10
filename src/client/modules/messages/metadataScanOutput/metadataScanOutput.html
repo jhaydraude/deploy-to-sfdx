@@ -126,7 +126,7 @@
       <base-card>
         <span>Dependencies</span>
         <template for:each={result.scanResult.Dependencies} for:item="currentItem" for:index="index">
-          <span>{currentItem.label</span><br>
+          <span key={currentItem.name}>{currentItem.label</span><br>
             <template if:true={currentItem.items}>
               <template for:each={currentItem.items} for:item="current" for:index="i">
                 <span class="preserve-format" key={current}>    {current}</span><br />
